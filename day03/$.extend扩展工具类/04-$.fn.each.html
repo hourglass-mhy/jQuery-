@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div>测试信息1</div>
+<div>测试信息2</div>
+<div>测试信息3</div>
+<div>测试信息4</div>
+<p>p1</p>
+<p>p2</p>
+<p>p3</p>
+<p>p4</p>
+</body>
+</html>
+<script>
+    //自执行函数
+    (function () {
+
+        var arr = [];
+        var push = arr.push;
+        var splice = arr.splice;
+
+        //准备数据  完成数据类型的判断
+        var types = "Number String Boolean Date Math Array Function Object RegExp".split(" ");
+        var class2type = {}; //保存数据类型  小写格式
+        for (var i = 0; i < types.length; i++) {
+            var type = types[i];
+            class2type["[object " + type + "]"] = type.toLowerCase();
+        }
+
+        //判断是不是数组或者伪数组  length属性
+        function isArrayLike(obj) {
+            var length = obj.length;
+            //排除特殊对象  function.length:形参的个数,window.length=0
+            if (jQuery.type(obj) === "function" || obj === window) return false;
+
+            return typeof length === "number" && length >= 0 && (length - 1) in obj;
+        }
+
+        //Sizzle引擎:获取dom元素
+        function Sizzle(selector) {
+            return document.querySelectorAll(selector);
+        }
+
+        //入口函数 :$的本质 init的实例
+        function jQuery(selector) {
+            return new jQuery.prototype.init(selector);
+
+        }
+
+        //给原型起了个别名
+        jQuery.fn = jQuery.prototype = {
+            constructor: jQuery,
+
+            //init:维护dom元素,保存在实例中
+            init: function (selector) {
+                //清空之前维护的doms:借用数组的方法 splice
+                splice.call(this, 0, this.length);
+
+                var doms = Sizzle(selector); //伪数组
+                //借用数组的方法, 将doms插入到this中
+                push.apply(this, doms);
+
+                return this; //实现链式编程
+            },
+            css: function (styleName, styleValue) {
+                for (var i = 0; i < this.length; i++) {
+                    var dom = this[i];
+                    dom.style[styleName] = styleValue;
+                }
+                return this;// 链式编程
+            }
+
+        };
+        //快速拷贝 将源对象拷贝都目标对象中
+        jQuery.fn.extend = jQuery.extend = function () {
+            //1.一参数,拷贝到jQuery中
+            //2.多个参数,后面的参数的属性和方法拷贝到第一个参数中
+            //3.返回拷贝之后的结果
+            var arg0 = arguments[0];
+            var argLen = arguments.length;
+            var target, sources = [];
+            //准备数据
+            if (argLen === 1) {
+                target = this;
+                sources.push(arg0);
+            } else {
+                //遍历参数
+                target = arg0;
+                push.call(sources, arguments);
+            }
+            //实现拷贝
+            for (var i = 0; i < sources.length; i++) {
+                var source = sources[i];
+                for (var key in source) {
+                    target[key] = source[key];
+                }
+            }
+            //返回值拷贝之后的数据
+            return target;
+        };
+
+        //扩展工具类:扩展jQuery本身的方法
+        jQuery.extend({
+            //判断是不是字符串
+            isString: function (str) {
+                return jQuery.type(str) === "string";
+            },
+
+            //判断是不是函数
+            isFunction: function (fn) {
+                return jQuery.type(fn) === "function";
+            },
+
+            //判断是不是数组  优先使用数组的内置方法Array.isArray(),ES5中,不支持再使用自己的方法
+            isArray: function (arr) {
+                return Array.isArray ? Array.isArray(arr) : jQuery.type(arr) === "array";
+            },
+
+            //判断数据类型:返回类型的小写格式
+            type: function (data) {
+                //null和undefined
+                if (data == null) return String(data);
+
+                return class2type[Object.prototype.toString.call(data)];
+            },
+
+            //each:遍历数组,伪数组,对象
+            //数组和伪数组,使用for循环进行遍历,对象使用for-in进行遍历
+            /**
+             * @param arr  遍历的对象
+             * @param callback  回调函数:函数内部的this:每一个元素的值对象的基本包装类型的实例
+             *                  参数:index,value
+             */
+            each: function (arr, callback) {
+                var length = arr.length, i = 0;
+                if (isArrayLike(arr)) {
+
+                    for (; i < length; i++) {
+                        callback.call(arr[i], i, arr[i]);
+                    }
+
+                } else {
+                    for (i in arr) {
+                        callback.call(arr[i], i, arr[i]);
+                    }
+                }
+            }
+        });
+
+        //扩展原型中的方法:扩展实例的方法
+        jQuery.fn.extend({
+            //遍历dom元素
+            each: function (callback) {//回调函数中的this:每一个dom元素
+                //借助$.each进行遍历
+                jQuery.each(this, callback);
+                return this; //实现链式编程
+            }
+        });
+
+        //init的实例可以访问jQuery.prototype中的方法
+        jQuery.prototype.init.prototype = jQuery.prototype;
+
+        //暴露接口:全局函数
+        window.$ = window.jQuery = jQuery;
+    })();
+
+    $("div").css("backgroundColor", "pink").css("fontSize", "30px").init("p").css("backgroundColor", "green");
+
+
+    $.extend({a: 100, b: 200, c: 300});
+
+    var arr = [100, 100, 100];
+    $.extend(arr, {a: 100, b: 200, c: 300});
+
+    $.fn.extend({a: 100, 2: 200, c: 300});
+
+    console.log($.type("sbx"));
+
+    console.log($.isString(1));
+    console.log($.isFunction(function () {
+    }));
+    console.log($.isArray([]));
+
+    $.each([100, 200, 300], function (index, value) {
+        console.log(this - 0);  //隐式将基本包装类型转化为数字
+    })
+
+
+    $("div").each(function () {
+        console.log(this);
+    }).css("fontSize", "40px");
+
+</script>
