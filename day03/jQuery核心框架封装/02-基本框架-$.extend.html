@@ -56,8 +56,35 @@
                 return this;// 链式编程
             }
 
+        };
+        //快速拷贝 将源对象拷贝都目标对象中
+        jQuery.extend=function () {
+            //1.一参数,拷贝到jQuery中
+            //2.多个参数,后面的参数的属性和方法拷贝到第一个参数中
+            //3.返回拷贝之后的结果
+            var arg0=arguments[0];
+            var argLen=arguments.length;
+
+            if(argLen===1) {
+
+               for(var key in arg0){
+                  this[key]=arg0[key];
+               }
+                return this;
+            }else {
+                //遍历参数
+                for(var i=1;i<argLen;i++){
+                    var arg=arguments[i];
+
+                    for(var key in arg){
+                        arg0[key]=arg[key]
+                    }
+                }
+                return arg0;
+            }
         }
 
+        
         //init的实例可以访问jQuery.prototype中的方法
         jQuery.prototype.init.prototype=jQuery.prototype;
 
@@ -68,5 +95,6 @@
     $("div").css("backgroundColor","pink").css("fontSize","30px").init("p").css("backgroundColor","green");
 
 
+    $.extend({a:100,b:200,c:300});
 
 </script>
