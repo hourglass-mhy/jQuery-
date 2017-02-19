@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div>测试信息1</div>
+<div>测试信息2</div>
+<div>测试信息3</div>
+<div>测试信息4</div>
+<p>p1</p>
+<p>p2</p>
+<p>p3</p>
+<p>p4</p>
+</body>
+</html>
+<script>
+    //自执行函数
+    (function (){
+
+        var arr=[];
+        var push=arr.push;
+        var splice=arr.splice;
+
+
+        //Sizzle引擎:获取dom元素
+        function Sizzle(selector) {
+            return  document.querySelectorAll(selector);
+        }
+
+        //入口函数 :$的本质 init的实例
+        function jQuery(selector) {
+            return  new jQuery.prototype.init(selector);
+
+        }
+        jQuery.prototype={
+            constructor:jQuery,
+
+            //init:维护dom元素,保存在实例中
+            init:function (selector) {
+                //清空之前维护的doms:借用数组的方法 splice
+                splice.call(this,0,this.length);
+
+                var doms=Sizzle(selector); //伪数组
+                //借用数组的方法, 将doms插入到this中
+                push.apply(this,doms);
+
+                return this; //实现链式编程
+            },
+            css:function (styleName,styleValue) {
+                for(var i=0;i<this.length;i++){
+                   var dom=this[i];
+                    dom.style[styleName]=styleValue;
+                }
+                return this;// 链式编程
+            }
+
+        }
+        
+        //init的实例可以访问jQuery.prototype中的方法
+        jQuery.prototype.init.prototype=jQuery.prototype;
+
+        //暴露接口:全局函数
+        window.$=window.jQuery=jQuery;
+    })();
+
+    $("div").css("backgroundColor","pink").css("fontSize","30px").init("p").css("backgroundColor","green");
+
+
+
+</script>
