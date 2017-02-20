@@ -285,7 +285,7 @@
 
                 var display = $this.css("display");
 //                display === "none" ? $this.show() : $this.hide();
-                $this[display === "none" ?"show":"hide"]();
+                $this[display === "none" ? "show" : "hide"]();
             });
 
             //涉及到获取元素的属性值,和设置元素的样式,可以使用css方法,当时回调函数内的this是一个dom元素
@@ -295,8 +295,7 @@
 
     console.log($("div").css("color"));
     //    $("div").css({"backgroundColor": "red", "fontSize": "30px"});
-    $("div").css("backgroundColor", "red");
+    $("div").css("fontSize", "30px").css("backgroundColor","red").css("fontSize","50px");
 
-    $("div").toggle();
 
 </script>
